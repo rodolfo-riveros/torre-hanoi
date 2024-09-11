@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego Torres de Hanoi</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin-bottom: 30px;
+        }
+
+        .torre {
+            width: 150px;
+            height: 300px;
+            background-color: #d9d9d9;
+            border: 2px solid #333;
+            border-radius: 10px;
+            margin: 0 80px;
+            position: relative;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            padding-bottom: 10px;
+        }
+
+        .torre h2 {
+            text-align: center;
+            margin-top: 0;
+            position: absolute;
+            top: -30px;
+            width: 100%;
+        }
+
+        .disco {
+            height: 30px;
+            border-radius: 15px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Ajuste de colores de los discos */
+        .disco-1 {
+            background-color: #3498db;
+        }
+
+        .disco-2 {
+            background-color: #e67e22;
+        }
+
+        .disco-3 {
+            background-color: #e74c3c;
+        }
+
+        .disco-4 {
+            background-color: #9b59b6;
+        }
+
+        .disco-5 {
+            background-color: #f1c40f;
+        }
+
+        .disco-6 {
+            background-color: #2ecc71;
+        }
+
+        .disco-7 {
+            background-color: #1abc9c;
+        }
+
+        /* Agrega más colores si es necesario */
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #27ae60;
+        }
+
+        /* Toast styles for notifications */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #28a745;
+            color: white;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            top: 30px;
+            transform: translateX(-50%);
+            font-size: 17px;
+        }
+
+        .toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        .toast.error {
+            background-color: #e74c3c;
+        }
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        .form{
+            padding-bottom: 60px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Juego de Torres de Hanoi</h1>
+
+    <!-- Formulario para seleccionar el número de discos -->
+    <div class="form">
+        <form action="/iniciar" method="POST">
+            <label for="num_discos">Selecciona el número de discos:</label>
+            <select name="num_discos" id="num_discos">
+                <option value="3">3 discos</option>
+                <option value="4">4 discos</option>
+                <option value="5">5 discos</option>
+                <option value="6">6 discos</option>
+                <option value="7">7 discos</option>
+            </select>
+            <button type="submit">Iniciar juego</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <div class="torre">
+            <h2>Torre A</h2>
+            {% for disco in estado['A'] %}
+            <div class="disco disco-{{ disco }}" style="width: {{ 60 + disco * 20 }}%;">{{ disco }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="torre">
+            <h2>Torre B</h2>
+            {% for disco in estado['B'] %}
+            <div class="disco disco-{{ disco }}" style="width: {{ 60 + disco * 20 }}%;">{{ disco }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="torre">
+            <h2>Torre C</h2>
+            {% for disco in estado['C'] %}
+            <div class="disco disco-{{ disco }}" style="width: {{ 60 + disco * 20 }}%;">{{ disco }}</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="toast" class="toast">¡Felicidades 🎉🎊! Completaste el juego. 🏆</div>
+    <div id="toast-error" class="toast error">❌ Movimiento inválido, intenta de nuevo.</div>
+
+    <div class="controls">
+        <form action="/mover" method="POST">
+            <label for="origen">Origen:</label>
+            <select name="origen" id="origen">
+                <option value="A">Torre A</option>
+                <option value="B">Torre B</option>
+                <option value="C">Torre C</option>
+            </select>
+
+            <label for="destino">Destino:</label>
+            <select name="destino" id="destino">
+                <option value="A">Torre A</option>
+                <option value="B">Torre B</option>
+                <option value="C">Torre C</option>
+            </select>
+
+            <button type="submit">Mover Disco</button>
+        </form>
+    </div>
+</body>
+
+<script>
+    // Función para mostrar el toast de festejo
+    function showToast() {
+        var toast = document.getElementById("toast");
+        toast.className = "toast show";
+        setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    // Función para mostrar el toast de error
+    function showErrorToast() {
+        var toast = document.getElementById("toast-error");
+        toast.className = "toast show";
+        setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    // Verificar si el juego ha terminado
+    function checkGameCompletion() {
+        fetch('/estado')
+            .then(response => response.json())
+            .then(data => {
+                if (data.B.length === {{ num_discos }} || data.C.length === {{ num_discos }}) {
+                    showToast();  // Muestra el toast de festejo
+                }
+            });
+    }
+
+    window.onload = function () {
+        checkGameCompletion();
+
+        // Mostrar toast de error si hay un error en la URL
+        {% if error == 'true' %}
+        showErrorToast();
+        {% endif %}
+    };
+</script>
+
+</html>
