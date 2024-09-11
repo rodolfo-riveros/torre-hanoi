@@ -67,7 +67,6 @@
             font-weight: bold;
         }
 
-        /* Ajuste de colores de los discos */
         .disco-1 {
             background-color: #3498db;
         }
@@ -96,8 +95,6 @@
             background-color: #1abc9c;
         }
 
-        /* Agrega más colores si es necesario */
-
         .controls {
             display: flex;
             justify-content: center;
@@ -123,14 +120,13 @@
             background-color: #27ae60;
         }
 
-        /* Toast styles for notifications */
         .toast {
             visibility: hidden;
             min-width: 250px;
             background-color: #28a745;
             color: white;
             text-align: center;
-            border-radius: 2px;
+            border-radius: 10px;
             padding: 16px;
             position: fixed;
             z-index: 1;
@@ -169,7 +165,7 @@
             }
         }
 
-        .form{
+        .form {
             padding-bottom: 60px;
         }
     </style>
@@ -178,7 +174,6 @@
 <body>
     <h1>Juego de Torres de Hanoi</h1>
 
-    <!-- Formulario para seleccionar el número de discos -->
     <div class="form">
         <form action="/iniciar" method="POST">
             <label for="num_discos">Selecciona el número de discos:</label>
@@ -241,9 +236,10 @@
 </body>
 
 <script>
-    // Función para mostrar el toast de festejo
+    // Función para mostrar el toast de éxito
     function showToast() {
         var toast = document.getElementById("toast");
+        console.log("Mostrando toast de éxito");
         toast.className = "toast show";
         setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
     }
@@ -251,6 +247,7 @@
     // Función para mostrar el toast de error
     function showErrorToast() {
         var toast = document.getElementById("toast-error");
+        console.log("Mostrando toast de error");
         toast.className = "toast show";
         setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
     }
@@ -260,8 +257,9 @@
         fetch('/estado')
             .then(response => response.json())
             .then(data => {
-                if (data.B.length === {{ num_discos }} || data.C.length === {{ num_discos }}) {
-                    showToast();  // Muestra el toast de festejo
+                const numDiscos = {{ num_discos }};
+                if (data.B.length === numDiscos || data.C.length === numDiscos) {
+                    showToast();
                 }
             });
     }
@@ -271,6 +269,7 @@
 
         // Mostrar toast de error si hay un error en la URL
         {% if error == 'true' %}
+        console.log("Error detectado en el movimiento");
         showErrorToast();
         {% endif %}
     };

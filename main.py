@@ -1,6 +1,6 @@
 import os
 import sys
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 # Agregar la carpeta 'src' al sys.path para poder importar el módulo correctamente
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
@@ -21,7 +21,8 @@ def index():
 
     estado = hanoi.estado()  # Obtenemos el estado actual de las torres
     error = request.args.get('error', 'false')  # Obtenemos si hubo un error
-    return render_template('index.html', estado=estado, error=error)
+    num_discos = hanoi.num_discos  # Obtener el número de discos actual
+    return render_template('index.html', estado=estado, error=error, num_discos=num_discos)
 
 @app.route('/iniciar', methods=['POST'])
 def iniciar_juego():
@@ -32,7 +33,7 @@ def iniciar_juego():
 
 @app.route('/estado')
 def obtener_estado():
-    return hanoi.estado()  # Retorna el estado de las torres en formato JSON
+    return jsonify(hanoi.estado())  # Retorna el estado de las torres en formato JSON
 
 @app.route('/mover', methods=['POST'])
 def mover():
